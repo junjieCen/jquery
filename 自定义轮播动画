@@ -1,0 +1,101 @@
+js代码
+$(function(){
+				/***************************
+				功能：自定义轮播动画，可以根据按钮设置动画方向
+				时间：2022年5月7日
+				****************************/
+				
+				var $box=$('#box');//滚动区的外框，position设置为相对定位relative
+				var $disp=$('.disp');//信息展示区
+				var $v_unit=$('li');//最小的滚动单元，这里是li，position设置为相对定位relative
+				var v_width=$v_unit.innerWidth();//单一滚动单元的宽度
+				var v_number=$v_unit.length;//滚动单元总数量
+				var disp_number=Math.floor($box.width()/v_width); //每次展示多少幅图片，总宽度除以滚动单元宽度，向下取整
+				//显示信息
+				$disp.append('<p>滚动区的宽度是：'+$box.width()+'px</p>');
+				$disp.append('<p>图像的宽度是：'+v_width+'px</p>');
+				$disp.append('<p>图像的总数是：'+v_number+' 幅，每次展示 '+disp_number+' 幅</p>');
+								
+				function go_animate(dir){//自定义滚动函数
+					$v_unit.each(function(){//为每一个小的动画单元单独设置动画
+						//判断当前动画元素是否达到边界，根据动画单元距离父元素的偏移量来进行判断
+						var flag=Math.ceil($(this).position().left);//检查当前单元相对外框的偏移量
+						// console.log($(this).index(),' ',flag);
+					//根据传入的方向值，决定动画方向	
+					switch(dir){
+						case 'right'://向右滚动
+							if(flag>=(v_number-1)*v_width) //偏移量大于图片总数减去1的宽度，则将最后一个图片放到最左边
+								$(this).css('left',-($(this).index()+1)*v_width);//设置当前单元的左边距。根据当前图片的顺序，依次设置偏移量，图片的下标是从0开始的，所以要下标加1后再乘以图片宽度
+				
+							//执行向右的动画
+							$(this).animate({left:"+="+v_width},1000);
+							break;
+						
+						case 'left'://向左滚动
+						default:
+							if(flag<0)//当前对象的偏移量超出左边距了
+								$(this).css('left',(v_number-1-$(this).index())*v_width);//设置当前单元的位置，第一幅图片的下标为0，所以总图片数量要先减去1，再减去当前下标，再乘以图片宽度为新的位置
+						//执行向左的动画
+							$(this).animate({left:"-="+v_width},1000);
+							break;	
+						}//switch函数结束
+					})//动画单元结束
+				}//自定义滚动函数结束
+				
+				//单击按钮向左动画
+				var timmer=null;
+				var dir='left';
+				$('button:first').click(function(){
+					clearInterval(timmer);
+					dir='left';
+					timmer=setInterval(function(){go_animate(dir)},3000);
+					})
+				
+				//向右动画
+				$('button:last').click(function(){
+					clearInterval(timmer);
+					dir='right';
+					timmer=setInterval(function(){go_animate(dir)},3000);				
+				})
+				
+				//鼠标放上去暂停动画，离开继续动画
+				$v_unit.hover(function(){
+					clearInterval(timmer);
+				},function(){
+					timmer=setInterval(function(){go_animate(dir)},3000);
+				})
+			//ready end	
+			})
+      
+ HTML结构
+      <div id="control">
+			<button>向左动画</button>
+			<button>向右动画</button>
+		</div>
+		<div id="box">
+			<ul>
+				<li><img src="img/1-caihesen.jpg" alt=""><span>1</span></li>
+				<li><img src="img/1-dongbw.jpg" alt=""><span>2</span></li>
+				<li><img src="img/1-fengb.jpg" alt=""><span>3</span></li>
+				<li><img src="img/1-heshuheng.jpg" alt=""><span>4</span></li>
+				<li><img src="img/1-lidazhao.jpg" alt=""><span>5</span></li>
+				<li><img src="img/1-liuhulan.jpg" alt=""><span>6</span></li>
+				<li><img src="img/1-mabenzhai.jpg" alt=""><span>7</span></li>
+				<li><img src="img/1-yeting.jpg" alt=""><span>8</span></li>
+				<li><img src="img/1-zuoquan.jpg" alt=""><span>9</span></li>
+				
+			</ul>
+		</div>
+		<div class="disp"></div>
+    
+    CSS
+    <style>
+			#box{width:1000px;margin: 0 auto;border: 2px solid red;height: 230px;position: relative;overflow: hidden;}
+			ul{width: 2000px;list-style: none;margin: 0;padding: 0;}
+			li{box-sizing: border-box;float: left;position: relative;}
+			img{width: 195px;height: 200px;margin-right: 5px;}
+			.disp,#control{width: 800px;margin: 0 auto;font-size: 2em;}
+			button{font-size: 1em;margin: 10px;}
+			span{display: block;text-align: center;background-color: gray;color:white;width: 195px;}
+		</style>
+			
